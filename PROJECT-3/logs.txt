@@ -1,0 +1,386 @@
+
+
+[1m> Entering new AgentExecutor chain...[0m
+[32;1m[1;3mI need to attempt to connect to the database to check the connection status. 
+
+Action: ConnectToDB  
+Action Input: None  [0m✅ Database connection successful!
+
+Observation: [36;1m[1;3m✅ Database connection successful![0m
+Thought:[32;1m[1;3mI now know the final answer  
+Final Answer: 
+response: 
+    connection_status: true
+    error_message: None[0m
+
+[1m> Finished chain.[0m
+{'input': 'System: \n        You are an agent named DBConnector, and task is to check if connection to DB can be made or not.\n        Return a response using the following format strictly, avoid any other text:\n\n        response: \n            connection_status: true or false\n            error_message: if any\n        \nHuman: Connect to the database and check it is connected sussessfully or not, If there is any error, print that..!', 'output': 'response: \n    connection_status: true\n    error_message: None'}
+response: 
+    connection_status: true
+    error_message: None
+✅ Database connection successful!
+
+
+[1m> Entering new AgentExecutor chain...[0m
+[32;1m[1;3mTo provide a full JSON summary of the database schema, I first need to list the tables in the database. Once I have the names of the tables, I can fetch the schema details for each one. 
+
+Action: sql_db_list_tables
+Action Input: "" [0m
+Observation: [38;5;200m[1;3mbalance, bill, customer, owner, owner_bill_count, payment, stock, stock_history, transaction[0m
+Thought:[32;1m[1;3mI have successfully retrieved the list of tables in the database. Now, I will query the schema information for each table: balance, bill, customer, owner, owner_bill_count, payment, stock, stock_history, and transaction.
+
+Action: sql_db_schema
+Action Input: balance, bill, customer, owner, owner_bill_count, payment, stock, stock_history, transaction[0m
+Observation: [33;1m[1;3m
+CREATE TABLE shop.balance (
+	id SERIAL NOT NULL, 
+	owner_id BIGINT, 
+	customer_id BIGINT, 
+	gold DOUBLE PRECISION DEFAULT 0.0, 
+	silver DOUBLE PRECISION DEFAULT 0.0, 
+	cash DOUBLE PRECISION DEFAULT 0.0, 
+	created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	CONSTRAINT balance_pkey PRIMARY KEY (id), 
+	CONSTRAINT fk_balance_customer FOREIGN KEY(customer_id) REFERENCES shop.customer (id), 
+	CONSTRAINT fk_balance_owner FOREIGN KEY(owner_id) REFERENCES shop.owner (id), 
+	CONSTRAINT check_either_owner_or_customer CHECK (owner_id IS NULL AND customer_id IS NOT NULL OR owner_id IS NOT NULL AND customer_id IS NULL)
+)
+
+
+CREATE TABLE shop.bill (
+	id SERIAL NOT NULL, 
+	bill_no BIGINT NOT NULL, 
+	customer_id BIGINT NOT NULL, 
+	type shop.bill_type NOT NULL, 
+	metal shop.metal_type NOT NULL, 
+	metal_rate DOUBLE PRECISION NOT NULL, 
+	date DATE, 
+	created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	CONSTRAINT bill_pkey PRIMARY KEY (id), 
+	CONSTRAINT fk_bill_customer FOREIGN KEY(customer_id) REFERENCES shop.customer (id)
+)
+
+
+CREATE TABLE shop.customer (
+	id SERIAL NOT NULL, 
+	owner_id BIGINT NOT NULL, 
+	shop_name VARCHAR(255), 
+	name VARCHAR(255) NOT NULL, 
+	reg_id VARCHAR(12) NOT NULL, 
+	gst_in VARCHAR(15) DEFAULT NULL::character varying, 
+	reg_date DATE, 
+	phone_no VARCHAR(10), 
+	is_active shop.is_active NOT NULL, 
+	address VARCHAR(255), 
+	remarks TEXT, 
+	created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	CONSTRAINT customer_pkey PRIMARY KEY (id), 
+	CONSTRAINT fk_owner_id FOREIGN KEY(owner_id) REFERENCES shop.owner (id), 
+	CONSTRAINT unique_name_ph_no_oid UNIQUE (shop_name, name, phone_no, owner_id), 
+	CONSTRAINT unique_reg_id UNIQUE (reg_id)
+)
+
+
+CREATE TABLE shop.owner (
+	id SERIAL NOT NULL, 
+	shop_name VARCHAR(255) NOT NULL, 
+	owner_name VARCHAR(255) NOT NULL, 
+	reg_id VARCHAR(10) NOT NULL, 
+	gst_in VARCHAR(15) DEFAULT NULL::character varying, 
+	phone_no VARCHAR(10) NOT NULL, 
+	is_active shop.is_active NOT NULL, 
+	reg_date DATE NOT NULL, 
+	address VARCHAR(255), 
+	key VARCHAR(255) NOT NULL, 
+	remarks TEXT, 
+	created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	CONSTRAINT owner_pkey PRIMARY KEY (id), 
+	CONSTRAINT owner_reg_id UNIQUE (reg_id), 
+	CONSTRAINT unique_name_ph_no UNIQUE (shop_name, owner_name, phone_no)
+)
+
+
+CREATE TABLE shop.owner_bill_count (
+	id SERIAL NOT NULL, 
+	owner_id BIGINT NOT NULL, 
+	bill_cnt INTEGER DEFAULT 0, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	CONSTRAINT owner_bill_count_pkey PRIMARY KEY (id), 
+	CONSTRAINT fk_owner_bill_count FOREIGN KEY(owner_id) REFERENCES shop.owner (id)
+)
+
+
+CREATE TABLE shop.payment (
+	id SERIAL NOT NULL, 
+	bill_id BIGINT, 
+	customer_id BIGINT, 
+	factor shop.entry_factor NOT NULL, 
+	"new" DOUBLE PRECISION DEFAULT 0.0, 
+	prev DOUBLE PRECISION DEFAULT 0.0, 
+	total DOUBLE PRECISION DEFAULT 0.0, 
+	paid DOUBLE PRECISION DEFAULT 0.0, 
+	rem DOUBLE PRECISION DEFAULT 0.0, 
+	type shop.payment_type NOT NULL, 
+	date DATE NOT NULL, 
+	remarks TEXT, 
+	created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	CONSTRAINT payment_pkey PRIMARY KEY (id), 
+	CONSTRAINT fk_payment_bill FOREIGN KEY(bill_id) REFERENCES shop.bill (id), 
+	CONSTRAINT fk_payment_customer_id FOREIGN KEY(customer_id) REFERENCES shop.customer (id)
+)
+
+
+CREATE TABLE shop.stock (
+	id SERIAL NOT NULL, 
+	owner_id BIGINT NOT NULL, 
+	type shop.stock_type NOT NULL, 
+	item_name VARCHAR(255) NOT NULL, 
+	tunch DOUBLE PRECISION, 
+	weight DOUBLE PRECISION DEFAULT 0.0, 
+	created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	is_active shop.is_active DEFAULT 'Y'::shop.is_active, 
+	CONSTRAINT stock_pkey PRIMARY KEY (id), 
+	CONSTRAINT fk_owner_id FOREIGN KEY(owner_id) REFERENCES shop.owner (id), 
+	CONSTRAINT unique_owner_type_item_tunch UNIQUE (owner_id, type, item_name, tunch)
+)
+
+
+CREATE TABLE shop.stock_history (
+	id SERIAL NOT NULL, 
+	stock_id BIGINT NOT NULL, 
+	prev_balance DOUBLE PRECISION NOT NULL, 
+	new_balance DOUBLE PRECISION NOT NULL, 
+	reason shop.reason NOT NULL, 
+	transaction_id BIGINT, 
+	remarks TEXT, 
+	created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
+	CONSTRAINT stock_history_pkey PRIMARY KEY (id), 
+	CONSTRAINT fk_stock_history_stock FOREIGN KEY(stock_id) REFERENCES shop.stock (id), 
+	CONSTRAINT fk_stock_history_transaction_id FOREIGN KEY(transaction_id) REFERENCES shop.transaction (id)
+)
+
+
+CREATE TABLE shop.transaction (
+	id SERIAL NOT NULL, 
+	bill_id BIGINT NOT NULL, 
+	is_active shop.is_active NOT NULL, 
+	item_name VARCHAR(255) NOT NULL, 
+	weight DOUBLE PRECISION NOT NULL, 
+	less DOUBLE PRECISION NOT NULL, 
+	net_weight DOUBLE PRECISION NOT NULL, 
+	tunch DOUBLE PRECISION NOT NULL, 
+	fine DOUBLE PRECISION NOT NULL, 
+	discount DOUBLE PRECISION DEFAULT 0.0, 
+	amount DOUBLE PRECISION, 
+	CONSTRAINT transaction_pkey PRIMARY KEY (id), 
+	CONSTRAINT fk_transaction_bill FOREIGN KEY(bill_id) REFERENCES shop.bill (id)
+)[0m
+Thought:[32;1m[1;3mNow I will structure the schema details into the JSON format as described.
+
+Final Answer:
+```json
+{
+    "response": {
+        "schema_name": "shop",
+        "tables": [
+            {
+                "name": "balance",
+                "column_names": ["id", "owner_id", "customer_id", "gold", "silver", "cash", "created_at", "updated_at"],
+                "datatypes": {
+                    "id": "SERIAL",
+                    "owner_id": "BIGINT",
+                    "customer_id": "BIGINT",
+                    "gold": "DOUBLE PRECISION",
+                    "silver": "DOUBLE PRECISION",
+                    "cash": "DOUBLE PRECISION",
+                    "created_at": "TIMESTAMP WITHOUT TIME ZONE",
+                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE"
+                },
+                "primary_key": ["id"],
+                "foreign_keys": [
+                    "fk_balance_customer FOREIGN KEY(customer_id) REFERENCES shop.customer (id)",
+                    "fk_balance_owner FOREIGN KEY(owner_id) REFERENCES shop.owner (id)"
+                ],
+                "sequences": [],
+                "constraints": ["check_either_owner_or_customer CHECK (owner_id IS NULL AND customer_id IS NOT NULL OR owner_id IS NOT NULL AND customer_id IS NULL)"]
+            },
+            {
+                "name": "bill",
+                "column_names": ["id", "bill_no", "customer_id", "type", "metal", "metal_rate", "date", "created_at", "updated_at"],
+                "datatypes": {
+                    "id": "SERIAL",
+                    "bill_no": "BIGINT",
+                    "customer_id": "BIGINT",
+                    "type": "shop.bill_type",
+                    "metal": "shop.metal_type",
+                    "metal_rate": "DOUBLE PRECISION",
+                    "date": "DATE",
+                    "created_at": "TIMESTAMP WITHOUT TIME ZONE",
+                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE"
+                },
+                "primary_key": ["id"],
+                "foreign_keys": ["fk_bill_customer FOREIGN KEY(customer_id) REFERENCES shop.customer (id)"],
+                "sequences": [],
+                "constraints": []
+            },
+            {
+                "name": "customer",
+                "column_names": ["id", "owner_id", "shop_name", "name", "reg_id", "gst_in", "reg_date", "phone_no", "is_active", "address", "remarks", "created_at", "updated_at"],
+                "datatypes": {
+                    "id": "SERIAL",
+                    "owner_id": "BIGINT",
+                    "shop_name": "VARCHAR(255)",
+                    "name": "VARCHAR(255)",
+                    "reg_id": "VARCHAR(12)",
+                    "gst_in": "VARCHAR(15)",
+                    "reg_date": "DATE",
+                    "phone_no": "VARCHAR(10)",
+                    "is_active": "shop.is_active",
+                    "address": "VARCHAR(255)",
+                    "remarks": "TEXT",
+                    "created_at": "TIMESTAMP WITHOUT TIME ZONE",
+                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE"
+                },
+                "primary_key": ["id"],
+                "foreign_keys": ["fk_owner_id FOREIGN KEY(owner_id) REFERENCES shop.owner (id)"],
+                "sequences": [],
+                "constraints": ["unique_name_ph_no_oid UNIQUE (shop_name, name, phone_no, owner_id)", "unique_reg_id UNIQUE (reg_id)"]
+            },
+            {
+                "name": "owner",
+                "column_names": ["id", "shop_name", "owner_name", "reg_id", "gst_in", "phone_no", "is_active", "reg_date", "address", "key", "remarks", "created_at", "updated_at"],
+                "datatypes": {
+                    "id": "SERIAL",
+                    "shop_name": "VARCHAR(255)",
+                    "owner_name": "VARCHAR(255)",
+                    "reg_id": "VARCHAR(10)",
+                    "gst_in": "VARCHAR(15)",
+                    "phone_no": "VARCHAR(10)",
+                    "is_active": "shop.is_active",
+                    "reg_date": "DATE",
+                    "address": "VARCHAR(255)",
+                    "key": "VARCHAR(255)",
+                    "remarks": "TEXT",
+                    "created_at": "TIMESTAMP WITHOUT TIME ZONE",
+                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE"
+                },
+                "primary_key": ["id"],
+                "foreign_keys": [],
+                "sequences": [],
+                "constraints": ["owner_reg_id UNIQUE (reg_id)", "unique_name_ph_no UNIQUE (shop_name, owner_name, phone_no)"]
+            },
+            {
+                "name": "owner_bill_count",
+                "column_names": ["id", "owner_id", "bill_cnt", "updated_at"],
+                "datatypes": {
+                    "id": "SERIAL",
+                    "owner_id": "BIGINT",
+                    "bill_cnt": "INTEGER",
+                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE"
+                },
+                "primary_key": ["id"],
+                "foreign_keys": ["fk_owner_bill_count FOREIGN KEY(owner_id) REFERENCES shop.owner (id)"],
+                "sequences": [],
+                "constraints": []
+            },
+            {
+                "name": "payment",
+                "column_names": ["id", "bill_id", "customer_id", "factor", "new", "prev", "total", "paid", "rem", "type", "date", "remarks", "created_at", "updated_at"],
+                "datatypes": {
+                    "id": "SERIAL",
+                    "bill_id": "BIGINT",
+                    "customer_id": "BIGINT",
+                    "factor": "shop.entry_factor",
+                    "new": "DOUBLE PRECISION",
+                    "prev": "DOUBLE PRECISION",
+                    "total": "DOUBLE PRECISION",
+                    "paid": "DOUBLE PRECISION",
+                    "rem": "DOUBLE PRECISION",
+                    "type": "shop.payment_type",
+                    "date": "DATE",
+                    "remarks": "TEXT",
+                    "created_at": "TIMESTAMP WITHOUT TIME ZONE",
+                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE"
+                },
+                "primary_key": ["id"],
+                "foreign_keys": [
+                    "fk_payment_bill FOREIGN KEY(bill_id) REFERENCES shop.bill (id)",
+                    "fk_payment_customer_id FOREIGN KEY(customer_id) REFERENCES shop.customer (id)"
+                ],
+                "sequences": [],
+                "constraints": []
+            },
+            {
+                "name": "stock",
+                "column_names": ["id", "owner_id", "type", "item_name", "tunch", "weight", "created_at", "updated_at", "is_active"],
+                "datatypes": {
+                    "id": "SERIAL",
+                    "owner_id": "BIGINT",
+                    "type": "shop.stock_type",
+                    "item_name": "VARCHAR(255)",
+                    "tunch": "DOUBLE PRECISION",
+                    "weight": "DOUBLE PRECISION",
+                    "created_at": "TIMESTAMP WITHOUT TIME ZONE",
+                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE",
+                    "is_active": "shop.is_active"
+                },
+                "primary_key": ["id"],
+                "foreign_keys": ["fk_owner_id FOREIGN KEY(owner_id) REFERENCES shop.owner (id)"],
+                "sequences": [],
+                "constraints": ["unique_owner_type_item_tunch UNIQUE (owner_id, type, item_name, tunch)"]
+            },
+            {
+                "name": "stock_history",
+                "column_names": ["id", "stock_id", "prev_balance", "new_balance", "reason", "transaction_id", "remarks", "created_at"],
+                "datatypes": {
+                    "id": "SERIAL",
+                    "stock_id": "BIGINT",
+                    "prev_balance": "DOUBLE PRECISION",
+                    "new_balance": "DOUBLE PRECISION",
+                    "reason": "shop.reason",
+                    "transaction_id": "BIGINT",
+                    "remarks": "TEXT",
+                    "created_at": "TIMESTAMP WITHOUT TIME ZONE"
+                },
+                "primary_key": ["id"],
+                "foreign_keys": [
+                    "fk_stock_history_stock FOREIGN KEY(stock_id) REFERENCES shop.stock (id)",
+                    "fk_stock_history_transaction_id FOREIGN KEY(transaction_id) REFERENCES shop.transaction (id)"
+                ],
+                "sequences": [],
+                "constraints": []
+            },
+            {
+                "name": "transaction",
+                "column_names": ["id", "bill_id", "is_active", "item_name", "weight", "less", "net_weight", "tunch", "fine", "discount", "amount"],
+                "datatypes": {
+                    "id": "SERIAL",
+                    "bill_id": "BIGINT",
+                    "is_active": "shop.is_active",
+                    "item_name": "VARCHAR(255)",
+                    "weight": "DOUBLE PRECISION",
+                    "less": "DOUBLE PRECISION",
+                    "net_weight": "DOUBLE PRECISION",
+                    "tunch": "DOUBLE PRECISION",
+                    "fine": "DOUBLE PRECISION",
+                    "discount": "DOUBLE PRECISION",
+                    "amount": "DOUBLE PRECISION"
+                },
+                "primary_key": ["id"],
+                "foreign_keys": ["fk_transaction_bill FOREIGN KEY(bill_id) REFERENCES shop.bill (id)"],
+                "sequences": [],
+                "constraints": []
+            }
+        ]
+    }
+}
+```[0m
+
+[1m> Finished chain.[0m
+{'input': "System: \n        Your name is SchemaGPT, a virtual assistant skilled in database-related tasks, especially fetching and summarizing schema-level details.\n        When a user asks you a question, use tools as needed to gather schema information. Then, return your response using the structured format defined in the `ResponseFormatter` schema.\n        Always return a response using this format:\n        \n        - response: A clear and structured JSON response containing details for each table. Each table should include:\n            - schema_name: Name of the schema\n                - name: Name of the table\n                - column_names: List of all column names\n                - datatypes: Dictionary mapping each column name to its datatype\n                - primary_key: List of primary key columns\n                - foreign_keys: List of foreign key descriptions\n                - sequences: Any sequences associated with the table\n                - constraints: List of table constraints (e.g., check constraints, uniqueness, etc.)\n\n        - example:\n            response:\n                schema_name: public\n                    name: stock\n                    column_names: ['symbol', 'date', 'open', 'high', 'low', 'close', 'volume']\n                    datatypes: {'symbol': 'character varying', 'date': 'date', 'open': 'numeric', 'high': 'numeric', 'low': 'numeric', 'close': 'numeric', 'volume': 'numeric'}\n                    primary_key: ['symbol', 'date']\n                    foreign_keys: []\n                    sequences: []\n                    constraints: ['stock_pk PRIMARY KEY (symbol, date)']\n\n                    name: owner\n                    column_names: ['id', 'name']\n                    datatypes: {'id': 'integer', 'name': 'character varying'}\n                    primary_key: ['id']\n                    foreign_keys: []\n                    sequences: []\n                    constraints: ['owner_pkey PRIMARY KEY (id)']\n\n        \nHuman: Give me a full JSON summary of the database schema. If there is any error, print that..!", 'output': '```json\n{\n    "response": {\n        "schema_name": "shop",\n        "tables": [\n            {\n                "name": "balance",\n                "column_names": ["id", "owner_id", "customer_id", "gold", "silver", "cash", "created_at", "updated_at"],\n                "datatypes": {\n                    "id": "SERIAL",\n                    "owner_id": "BIGINT",\n                    "customer_id": "BIGINT",\n                    "gold": "DOUBLE PRECISION",\n                    "silver": "DOUBLE PRECISION",\n                    "cash": "DOUBLE PRECISION",\n                    "created_at": "TIMESTAMP WITHOUT TIME ZONE",\n                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE"\n                },\n                "primary_key": ["id"],\n                "foreign_keys": [\n                    "fk_balance_customer FOREIGN KEY(customer_id) REFERENCES shop.customer (id)",\n                    "fk_balance_owner FOREIGN KEY(owner_id) REFERENCES shop.owner (id)"\n                ],\n                "sequences": [],\n                "constraints": ["check_either_owner_or_customer CHECK (owner_id IS NULL AND customer_id IS NOT NULL OR owner_id IS NOT NULL AND customer_id IS NULL)"]\n            },\n            {\n                "name": "bill",\n                "column_names": ["id", "bill_no", "customer_id", "type", "metal", "metal_rate", "date", "created_at", "updated_at"],\n                "datatypes": {\n                    "id": "SERIAL",\n                    "bill_no": "BIGINT",\n                    "customer_id": "BIGINT",\n                    "type": "shop.bill_type",\n                    "metal": "shop.metal_type",\n                    "metal_rate": "DOUBLE PRECISION",\n                    "date": "DATE",\n                    "created_at": "TIMESTAMP WITHOUT TIME ZONE",\n                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE"\n                },\n                "primary_key": ["id"],\n                "foreign_keys": ["fk_bill_customer FOREIGN KEY(customer_id) REFERENCES shop.customer (id)"],\n                "sequences": [],\n                "constraints": []\n            },\n            {\n                "name": "customer",\n                "column_names": ["id", "owner_id", "shop_name", "name", "reg_id", "gst_in", "reg_date", "phone_no", "is_active", "address", "remarks", "created_at", "updated_at"],\n                "datatypes": {\n                    "id": "SERIAL",\n                    "owner_id": "BIGINT",\n                    "shop_name": "VARCHAR(255)",\n                    "name": "VARCHAR(255)",\n                    "reg_id": "VARCHAR(12)",\n                    "gst_in": "VARCHAR(15)",\n                    "reg_date": "DATE",\n                    "phone_no": "VARCHAR(10)",\n                    "is_active": "shop.is_active",\n                    "address": "VARCHAR(255)",\n                    "remarks": "TEXT",\n                    "created_at": "TIMESTAMP WITHOUT TIME ZONE",\n                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE"\n                },\n                "primary_key": ["id"],\n                "foreign_keys": ["fk_owner_id FOREIGN KEY(owner_id) REFERENCES shop.owner (id)"],\n                "sequences": [],\n                "constraints": ["unique_name_ph_no_oid UNIQUE (shop_name, name, phone_no, owner_id)", "unique_reg_id UNIQUE (reg_id)"]\n            },\n            {\n                "name": "owner",\n                "column_names": ["id", "shop_name", "owner_name", "reg_id", "gst_in", "phone_no", "is_active", "reg_date", "address", "key", "remarks", "created_at", "updated_at"],\n                "datatypes": {\n                    "id": "SERIAL",\n                    "shop_name": "VARCHAR(255)",\n                    "owner_name": "VARCHAR(255)",\n                    "reg_id": "VARCHAR(10)",\n                    "gst_in": "VARCHAR(15)",\n                    "phone_no": "VARCHAR(10)",\n                    "is_active": "shop.is_active",\n                    "reg_date": "DATE",\n                    "address": "VARCHAR(255)",\n                    "key": "VARCHAR(255)",\n                    "remarks": "TEXT",\n                    "created_at": "TIMESTAMP WITHOUT TIME ZONE",\n                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE"\n                },\n                "primary_key": ["id"],\n                "foreign_keys": [],\n                "sequences": [],\n                "constraints": ["owner_reg_id UNIQUE (reg_id)", "unique_name_ph_no UNIQUE (shop_name, owner_name, phone_no)"]\n            },\n            {\n                "name": "owner_bill_count",\n                "column_names": ["id", "owner_id", "bill_cnt", "updated_at"],\n                "datatypes": {\n                    "id": "SERIAL",\n                    "owner_id": "BIGINT",\n                    "bill_cnt": "INTEGER",\n                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE"\n                },\n                "primary_key": ["id"],\n                "foreign_keys": ["fk_owner_bill_count FOREIGN KEY(owner_id) REFERENCES shop.owner (id)"],\n                "sequences": [],\n                "constraints": []\n            },\n            {\n                "name": "payment",\n                "column_names": ["id", "bill_id", "customer_id", "factor", "new", "prev", "total", "paid", "rem", "type", "date", "remarks", "created_at", "updated_at"],\n                "datatypes": {\n                    "id": "SERIAL",\n                    "bill_id": "BIGINT",\n                    "customer_id": "BIGINT",\n                    "factor": "shop.entry_factor",\n                    "new": "DOUBLE PRECISION",\n                    "prev": "DOUBLE PRECISION",\n                    "total": "DOUBLE PRECISION",\n                    "paid": "DOUBLE PRECISION",\n                    "rem": "DOUBLE PRECISION",\n                    "type": "shop.payment_type",\n                    "date": "DATE",\n                    "remarks": "TEXT",\n                    "created_at": "TIMESTAMP WITHOUT TIME ZONE",\n                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE"\n                },\n                "primary_key": ["id"],\n                "foreign_keys": [\n                    "fk_payment_bill FOREIGN KEY(bill_id) REFERENCES shop.bill (id)",\n                    "fk_payment_customer_id FOREIGN KEY(customer_id) REFERENCES shop.customer (id)"\n                ],\n                "sequences": [],\n                "constraints": []\n            },\n            {\n                "name": "stock",\n                "column_names": ["id", "owner_id", "type", "item_name", "tunch", "weight", "created_at", "updated_at", "is_active"],\n                "datatypes": {\n                    "id": "SERIAL",\n                    "owner_id": "BIGINT",\n                    "type": "shop.stock_type",\n                    "item_name": "VARCHAR(255)",\n                    "tunch": "DOUBLE PRECISION",\n                    "weight": "DOUBLE PRECISION",\n                    "created_at": "TIMESTAMP WITHOUT TIME ZONE",\n                    "updated_at": "TIMESTAMP WITHOUT TIME ZONE",\n                    "is_active": "shop.is_active"\n                },\n                "primary_key": ["id"],\n                "foreign_keys": ["fk_owner_id FOREIGN KEY(owner_id) REFERENCES shop.owner (id)"],\n                "sequences": [],\n                "constraints": ["unique_owner_type_item_tunch UNIQUE (owner_id, type, item_name, tunch)"]\n            },\n            {\n                "name": "stock_history",\n                "column_names": ["id", "stock_id", "prev_balance", "new_balance", "reason", "transaction_id", "remarks", "created_at"],\n                "datatypes": {\n                    "id": "SERIAL",\n                    "stock_id": "BIGINT",\n                    "prev_balance": "DOUBLE PRECISION",\n                    "new_balance": "DOUBLE PRECISION",\n                    "reason": "shop.reason",\n                    "transaction_id": "BIGINT",\n                    "remarks": "TEXT",\n                    "created_at": "TIMESTAMP WITHOUT TIME ZONE"\n                },\n                "primary_key": ["id"],\n                "foreign_keys": [\n                    "fk_stock_history_stock FOREIGN KEY(stock_id) REFERENCES shop.stock (id)",\n                    "fk_stock_history_transaction_id FOREIGN KEY(transaction_id) REFERENCES shop.transaction (id)"\n                ],\n                "sequences": [],\n                "constraints": []\n            },\n            {\n                "name": "transaction",\n                "column_names": ["id", "bill_id", "is_active", "item_name", "weight", "less", "net_weight", "tunch", "fine", "discount", "amount"],\n                "datatypes": {\n                    "id": "SERIAL",\n                    "bill_id": "BIGINT",\n                    "is_active": "shop.is_active",\n                    "item_name": "VARCHAR(255)",\n                    "weight": "DOUBLE PRECISION",\n                    "less": "DOUBLE PRECISION",\n                    "net_weight": "DOUBLE PRECISION",\n                    "tunch": "DOUBLE PRECISION",\n                    "fine": "DOUBLE PRECISION",\n                    "discount": "DOUBLE PRECISION",\n                    "amount": "DOUBLE PRECISION"\n                },\n                "primary_key": ["id"],\n                "foreign_keys": ["fk_transaction_bill FOREIGN KEY(bill_id) REFERENCES shop.bill (id)"],\n                "sequences": [],\n                "constraints": []\n            }\n        ]\n    }\n}\n```'}
