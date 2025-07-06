@@ -1,0 +1,1 @@
+# How to return structured data from a model
