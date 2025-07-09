@@ -127,7 +127,7 @@ def SystemMessage():
                 6,การสนับสนุนลูกค้า
 
             Output:
-                s.no,english,test_language,test_remark,comparision_remark,correct_word,description
+                s.no,english,thai,test_remark,comparision_remark,correct_word,description
                 1,Device State,สถานะอุปกรณ์,True,True,,correct
                 2,Last Interaction,การโต้ตอบล่าสุด,True,True,,correct
                 3,Emi Plan,แผนผ่อนชำระ,True,True,,correct
@@ -156,7 +156,7 @@ def SystemMessage():
                 6,การสนับสนุนลูกค้า
 
             Output:
-                s.no,english,test_language,test_remark,comparision_remark,correct_word,description
+                s.no,english,thai,test_remark,comparision_remark,correct_word,description
                 1,Device State,การกำหนดค่า,True,False,สถานะอุปกรณ์,meaning mismatch
                 2,Last Interaction,การโต้ตอบล่าสุด,True,True,,correct
                 3,Emi Plan,แผนผ่อนชำระ,True,True,,correct
