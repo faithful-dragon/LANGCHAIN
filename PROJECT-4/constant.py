@@ -17,11 +17,7 @@ SYSTEM_MESSAGE = H.SystemMessage()
 HUMAN_MESSAGE = H.HumanMessageFromDF(
     D.english_df,
     test_dfs={
-        "Spanish": D.spanish_df,
-        "French": D.french_df,
-        "German": D.german_df,
-        "Hindi": D.hindi_df,
-        "Thai": D.thai_df
+        "Spanish": D.spanish_df
     }
 )
 TOOLS = []

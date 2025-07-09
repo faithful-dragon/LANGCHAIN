@@ -1,10 +1,10 @@
-s.no,english,spanish,remark1,correct_word1,french,remark2,correct_word2,german,remark3,correct_word3,hindi,remark4,correct_word4,thai,remark5,correct_word5
-1,Hi,Hola,True,blank,Salut,True,blank,Hallo,True,blank,नमस्ते,False,नमस्ते,สวัสดี,False,สวัสดี
-2,Who,Quién,True,blank,Qui,True,blank,W er,True,blank,कौन,True,blank,ใคร,True,blank
-3,Are,Eres,True,blank,Es,False,Être,Bist,True,blank,हो,False,है,คือ,False,เป็น
-4,Yes,Sí,True,blank,Oui,True,blank,Ja,True,blank,हाँ,True,blank,ใช่,True,blank
-5,What,Qué,True,blank,Quoi,True,blank,Was,True,blank,क्या,True,blank,อะไร,True,blank
-6,You,Tú,True,blank,Toi,True,blank,Du,True,blank,तुम,True,blank,คุณ,True,blank
-7,Your,Tu,True,blank,Ton,False,Votre,Dein,True,blank,तुम्हारा,True,blank,ของคุณ,True,blank
-8,Place,Lugar,True,blank,Lieu,True,blank,Ort,True,blank,स्थान,True,blank,สถานที่,True,blank
-9,Pawan,Pawan,True,blank,Pawan,True,blank,Pawan,True,blank,Pawan,True,blank,Pawan,True,blank
+s.no,english,spanish,remark,correct_word
+1,Hi,Hola,True,blank
+2,Who,Quién,True,blank
+3,Are,Eres,True,blank
+4,Yes,Sí,True,blank
+5,What,Qué,True,blank
+6,You,Tú,True,blank
+7,Your,Tu,True,blank
+8,Place,Lugar,True,blank
+9,Pawan,Pawan,True,blank

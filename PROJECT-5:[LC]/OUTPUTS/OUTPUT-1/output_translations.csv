@@ -1,0 +1,11 @@
+s.no,english,spanish,test_remark,comparision_remark,correct_word,description
+1,Hello,Eres,True,False,Hola,meaning mismatch
+2,Who,Quién,True,True,,correct
+3,Are,Eres,True,True,,correct
+4,Yes,Sí,True,True,,correct
+5,What,Qué,True,True,,correct
+6,You,Tú,True,True,,correct
+7,Your,Tu,True,True,,correct
+8,Place,Salut,False,False,Lugar,not spanish language
+9,Pawan,Pawan,True,True,,name match
+10,Device State,Estado del dispositivo,True,True,,correct

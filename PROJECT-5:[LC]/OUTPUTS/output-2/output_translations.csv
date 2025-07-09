@@ -1,0 +1,7 @@
+s.no,english,test_language,test_remark,comparision_remark,correct_word,description
+1,Device State,สถานะอุปกรณ์,True,True,,correct
+2,Last Interaction,การโต้ตอบล่าสุด,True,True,,correct
+3,Emi Plan,แผนผ่อนชำระ,True,True,,correct
+4,Tnc,ข้อกำหนดและเงื่อนไข,True,True,,correct
+5,Partner Support,การสนับสนุนพันธมิตร,True,True,,correct
+6,Customer Support,การสนับสนุนลูกค้า,True,True,,correct
