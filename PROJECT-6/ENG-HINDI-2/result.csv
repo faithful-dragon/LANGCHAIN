@@ -1,0 +1,7 @@
+s.no,english,hindi,test_remark,comparision_remark,correct_word,description
+1,Device State,उपकरण की स्थिति,True,True,,correct
+2,Last Interaction,अंतिम,True,False,अंतिम संपर्क,meaning mismatch
+3,Emi Plan,ईएमआई योजना,True,True,,correct
+4,Terms and Conditions,การสนับสนุนลูกค้า,False,False,नियम और शर्तें,not hindi language
+5,Partner Support,तुम कहाँ हो,True,False,भागीदार समर्थन,meaning mismatch
+6,Customer Support,Atención al cliente,False,False,ग्राहक सहायता,not hindi language

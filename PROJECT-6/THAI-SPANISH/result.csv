@@ -1,0 +1,21 @@
+s.no,thai,spanish,test_remark,comparision_remark,correct_word,description
+1,สวัสดี,Hola,True,False,สวัสดี,meaning mismatch
+2,ลาก่อน,Adiós,True,True,,correct
+3,ขอบคุณ,Gracias,True,True,,correct
+4,ใช่,Sí,True,True,,correct
+5,ไม่ใช่,No,True,True,,correct
+6,กรุณา,Por favor,True,True,,correct
+7,ขอโทษ,Lo siento,True,True,,correct
+8,ช่วยด้วย,Ayuda,True,True,,correct
+9,คุณเป็นอย่างไรบ้าง?,¿Cómo estás?,True,True,,correct
+10,ชื่อของคุณคืออะไร?,¿Cuál es tu nombre?,True,True,,correct
+11,ฉันต้องการความช่วยเหลือ,Necesito ayuda,True,True,,correct
+12,ห้องน้ำอยู่ที่ไหน?,¿Dónde está el baño?,True,True,,correct
+13,ฉันหลงทาง,Estoy perdido,True,True,,correct
+14,เรียกตำรวจ,Llama a la policía,True,True,,correct
+15,สวัสดีตอนเช้า,Buenos días,True,True,,correct
+16,ราตรีสวัสดิ์,Buenas noches,True,True,,correct
+17,ฉันไม่เข้าใจ,No entiendo,True,True,,correct
+18,คุณช่วยพูดอีกครั้งได้ไหม?,¿Puedes repetir eso?,True,True,,correct
+19,ราคาเท่าไหร่?,¿Cuánto cuesta?,True,True,,correct
+20,ฉันอยากสั่งอาหาร,Quisiera pedir comida,True,True,,correct

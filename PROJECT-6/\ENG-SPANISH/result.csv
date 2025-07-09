@@ -1,0 +1,21 @@
+s.no,english,spanish,test_remark,comparision_remark,correct_word,description
+1,Hello,Hola,True,True,,correct
+2,Goodbye,Adiós,True,True,,correct
+3,Thank you,Gracias,True,True,,correct
+4,Yes,Sí,True,True,,correct
+5,No,No,True,True,,correct
+6,Please,Por favor,True,True,,correct
+7,Sorry,Lo siento,True,True,,correct
+8,Help,Ayuda,True,True,,correct
+9,How are you?,¿Cómo estás?,True,True,,correct
+10,What is your name?,¿Cuál es tu nombre?,True,True,,correct
+11,I need assistance,Necesito ayuda,True,True,,correct
+12,Where is the restroom?,¿Dónde está el baño?,True,True,,correct
+13,I am lost,Estoy perdido,True,True,,correct
+14,Call the police,Llama a la policía,True,True,,correct
+15,Good morning,Buenos días,True,True,,correct
+16,Good night,Buenas noches,True,True,,correct
+17,I don’t understand,No entiendo,True,True,,correct
+18,Can you repeat that?,¿Puedes repetir eso?,True,True,,correct
+19,How much does it cost?,¿Cuánto cuesta?,True,True,,correct
+20,I would like to order food,Quisiera pedir comida,True,True,,correct
